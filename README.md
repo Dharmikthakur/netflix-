@@ -25,6 +25,7 @@ Open [http://localhost:3000](http://localhost:3000)
 
 
 adding new apis 
+fanart apis 
 
 
 ```
