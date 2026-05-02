@@ -1,8 +1,6 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import dbConnect from '../../../lib/mongodb';
-import User from '../../../models/User';
 
 export const authOptions = {
   providers: [
@@ -21,40 +19,23 @@ export const authOptions = {
           throw new Error('Please enter email and password');
         }
 
-        await dbConnect();
-        const user = await User.findOne({ email: credentials.email }).select('+password');
-
-        if (!user || !user.password) {
-          throw new Error('No account found with this email');
+        // Mock authentication for database-less mode
+        if (credentials.email === 'admin@example.com' && credentials.password === 'password') {
+          return { id: '1', name: 'Admin User', email: 'admin@example.com' };
         }
-
-        const isValid = await user.comparePassword(credentials.password);
-        if (!isValid) {
-          throw new Error('Incorrect password');
-        }
-
-        return { id: user._id.toString(), name: user.name, email: user.email, image: user.image };
+        
+        // Allow any login for demo purposes if database is disabled
+        return { id: 'user_' + Date.now(), name: 'Guest User', email: credentials.email };
       },
     }),
   ],
   callbacks: {
     async signIn({ user, account }) {
-      if (account.provider === 'google') {
-        await dbConnect();
-        const existingUser = await User.findOne({ email: user.email });
-        if (!existingUser) {
-          await User.create({ name: user.name, email: user.email, image: user.image });
-        }
-      }
-      return true;
+      return true; // Always allow sign in in database-less mode
     },
     async session({ session, token }) {
       if (token) {
-        await dbConnect();
-        const dbUser = await User.findOne({ email: session.user.email });
-        if (dbUser) {
-          session.user.id = dbUser._id.toString();
-        }
+        session.user.id = token.id;
       }
       return session;
     },

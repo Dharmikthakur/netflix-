@@ -152,7 +152,10 @@ export default function Browse() {
             {hero && (
               <Hero
                 movie={hero}
-                onPlay={() => openModal(hero)}
+                onPlay={() => {
+                  const type = hero.media_type === 'tv' || hero.first_air_date ? 'tv' : 'movie';
+                  router.push(`/movie/${hero.id}?type=${type}`);
+                }}
                 onMoreInfo={() => openModal(hero)}
               />
             )}

@@ -1,8 +1,10 @@
+import { useRouter } from 'next/router';
 import styles from '../styles/Modal.module.css';
 
 const IMG_BASE = 'https://image.tmdb.org/t/p/original';
 
 export default function Modal({ movie, onClose, onAddToList, myList }) {
+  const router = useRouter();
   if (!movie) return null;
 
   const title = movie.title || movie.name;
@@ -15,6 +17,11 @@ export default function Modal({ movie, onClose, onAddToList, myList }) {
   
   // Find trailer
   const trailer = movie.videos?.find((vid) => vid.type === 'Trailer' && vid.site === 'YouTube');
+
+  const handlePlay = () => {
+    const type = movie.media_type === 'tv' || movie.first_air_date ? 'tv' : 'movie';
+    router.push(`/movie/${movie.id}?type=${type}`);
+  };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -43,7 +50,7 @@ export default function Modal({ movie, onClose, onAddToList, myList }) {
           <div className={styles.heroContent}>
             <h1 className={styles.title}>{title}</h1>
             <div className={styles.actions}>
-              <button className="btn btn-white" style={{ padding: '8px 24px', fontSize: 18 }}>
+              <button className="btn btn-white" style={{ padding: '8px 24px', fontSize: 18 }} onClick={handlePlay}>
                 <svg fill="black" viewBox="0 0 24 24" width="24" height="24">
                   <path d="M8 5v14l11-7z" />
                 </svg>

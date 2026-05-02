@@ -100,12 +100,6 @@ export default function Navbar({ user, onSearch, searchQuery }) {
                 <span>👤</span> {user?.name || 'Profile'}
               </div>
               <div className={styles.dropdownDivider} />
-              <div
-                className={styles.dropdownItem}
-                onClick={() => router.push('/profiles')}
-              >
-                <span>🔄</span> Switch Profile
-              </div>
               <div className={styles.dropdownItem}>
                 <span>⚙️</span> Account
               </div>

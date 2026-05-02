@@ -6,7 +6,7 @@ import Navbar from '../../components/Navbar';
 
 export default function MovieDetail() {
   const router = useRouter();
-  const { id, type = 'movie' } = router.query;
+  const { id, type = 'movie', s = 1, e = 1 } = router.query;
   const [movie, setMovie] = useState(null);
   
   useEffect(() => {
@@ -26,8 +26,9 @@ export default function MovieDetail() {
     return <div className="loader"><div className="spinner" /></div>;
   }
 
-  const trailer = movie.videos?.find((vid) => vid.type === 'Trailer' && vid.site === 'YouTube') 
-                  || movie.videos?.[0];
+  const embedUrl = type === 'tv' 
+    ? `https://vidking.net/embed/tv/${id}/${s}/${e}`
+    : `https://vidking.net/embed/movie/${id}`;
 
   return (
     <>
@@ -37,22 +38,15 @@ export default function MovieDetail() {
       <div style={{ background: '#000', minHeight: '100vh' }}>
         <Navbar user={{ name: 'Guest' }} onSearch={() => {}} />
         
-        {trailer ? (
-          <div style={{ position: 'relative', width: '100%', height: '100vh' }}>
-             <iframe
-                src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=0&controls=1&showinfo=0&rel=0`}
-                style={{ width: '100%', height: '100%', border: 'none' }}
-                allow="autoplay; encrypted-media"
-                allowFullScreen
-                title="Trailer"
-              />
-          </div>
-        ) : (
-          <div style={{ padding: '100px 48px', color: '#fff' }}>
-            <h1>{movie.title || movie.name}</h1>
-            <p>No video available.</p>
-          </div>
-        )}
+        <div style={{ position: 'relative', width: '100%', height: 'calc(100vh - 70px)', marginTop: '70px' }}>
+           <iframe
+              src={embedUrl}
+              style={{ width: '100%', height: '100%', border: 'none' }}
+              allow="autoplay; encrypted-media; fullscreen"
+              allowFullScreen
+              title="Movie Player"
+            />
+        </div>
       </div>
     </>
   );
