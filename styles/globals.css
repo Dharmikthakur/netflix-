@@ -22,11 +22,19 @@ html {
   background-color: var(--bg-dark);
   color: var(--text-primary);
   scroll-behavior: smooth;
+  height: 100%;
 }
 
 body {
-  min-height: 100vh;
+  height: 100%;
+  margin: 0;
+  padding: 0;
   overflow-x: hidden;
+  overflow-y: auto !important;
+}
+
+#_next {
+  height: 100%;
 }
 
 a {
@@ -49,16 +57,20 @@ input {
 
 /* ─────────────────────────────
    SCROLLBAR
-───────────────────────────── */
+ ───────────────────────────── */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 10px;
 }
 ::-webkit-scrollbar-track {
   background: #111;
 }
 ::-webkit-scrollbar-thumb {
-  background: #555;
-  border-radius: 4px;
+  background: #444;
+  border-radius: 5px;
+  border: 2px solid #111;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #666;
 }
 
 /* ─────────────────────────────

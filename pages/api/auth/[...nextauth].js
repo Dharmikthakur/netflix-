@@ -1,6 +1,8 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import dbConnect from '../../../lib/dbConnect';
+import User from '../../../models/User';
 
 export const authOptions = {
   providers: [
@@ -19,19 +21,49 @@ export const authOptions = {
           throw new Error('Please enter email and password');
         }
 
-        // Mock authentication for database-less mode
-        if (credentials.email === 'admin@example.com' && credentials.password === 'password') {
-          return { id: '1', name: 'Admin User', email: 'admin@example.com' };
-        }
+        await dbConnect();
         
-        // Allow any login for demo purposes if database is disabled
-        return { id: 'user_' + Date.now(), name: 'Guest User', email: credentials.email };
+        // Check for admin user (mock or real)
+        if (credentials.email === 'admin@example.com' && credentials.password === 'password') {
+          let user = await User.findOne({ email: credentials.email });
+          if (!user) {
+            user = await User.create({
+              name: 'Admin User',
+              email: credentials.email,
+              password: 'password', // Will be hashed by pre-save hook
+            });
+          }
+          return { id: user._id.toString(), name: user.name, email: user.email, image: user.image };
+        }
+
+        const user = await User.findOne({ email: credentials.email }).select('+password');
+        if (!user) {
+          throw new Error('No user found with this email');
+        }
+
+        const isValid = await user.comparePassword(credentials.password);
+        if (!isValid) {
+          throw new Error('Invalid password');
+        }
+
+        return { id: user._id.toString(), name: user.name, email: user.email, image: user.image };
       },
     }),
   ],
   callbacks: {
-    async signIn({ user, account }) {
-      return true; // Always allow sign in in database-less mode
+    async signIn({ user, account, profile }) {
+      await dbConnect();
+      if (account.provider === 'google') {
+        const existingUser = await User.findOne({ email: user.email });
+        if (!existingUser) {
+          await User.create({
+            name: user.name,
+            email: user.email,
+            image: user.image,
+          });
+        }
+      }
+      return true;
     },
     async session({ session, token }) {
       if (token) {

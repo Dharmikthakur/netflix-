@@ -3,7 +3,7 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 68px;
+  height: 90px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -24,10 +24,39 @@
   gap: 32px;
 }
 
-.logo {
+.logoContainer {
   display: flex;
-  align-items: center;
-  flex-shrink: 0;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.logoBrand {
+  display: flex;
+  align-items: baseline;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -1px;
+}
+
+.logoRed {
+  color: #e50914;
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.logoWhite {
+  color: #fff;
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.logoCredit {
+  color: #adadad;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: -2px;
+  opacity: 0.9;
 }
 
 .navLinks {
@@ -40,10 +69,22 @@
   font-size: 14px;
   font-weight: 500;
   transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.navLink:hover {
+.navBadge {
+  background: #e50914;
   color: #fff;
+  font-size: 10px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 700;
 }
 
 .right {
@@ -96,24 +137,39 @@
   color: #aaa;
 }
 
+/* Language Selector */
+.langSelect {
+  margin: 0 10px;
+}
+
+.langSelect select {
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+  outline: none;
+}
+
 /* Profile */
 .profileDropdown {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   cursor: pointer;
 }
 
 .avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 6px;
-  background: #e50914;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  background: #007bff; /* Blue as seen in image */
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 16px;
   overflow: hidden;
 }
 

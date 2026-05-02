@@ -1,11 +1,32 @@
 .page {
   background: var(--bg-dark);
   min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.mainContent {
+  flex: 1;
+  position: relative;
+}
+
+.heroSection {
+  min-height: 80vh;
+  background: #000;
+  position: relative;
+}
+
+.heroPlaceholder {
+  height: 80vh;
+  background: linear-gradient(to bottom, #141414, #000);
 }
 
 .rows {
   padding-bottom: 80px;
-  margin-top: -80px;
+  margin-top: -150px;
   position: relative;
   z-index: 2;
 }

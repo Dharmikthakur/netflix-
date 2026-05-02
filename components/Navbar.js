@@ -33,20 +33,24 @@ export default function Navbar({ user, onSearch, searchQuery }) {
     { label: 'TV Shows', href: '/browse?type=tv' },
     { label: 'Movies', href: '/browse?type=movie' },
     { label: 'New & Popular', href: '/browse?type=popular' },
-    { label: 'My List', href: '/browse?type=mylist' },
+    { label: 'My List', href: '/browse?type=mylist', badge: 1 },
   ];
 
   return (
     <nav className={`${styles.navbar} ${scrolled ? styles.scrolled : ''}`}>
       {/* Left */}
       <div className={styles.left}>
-        <Link href="/browse" className={styles.logo}>
-          <img src="/assets/logo.png" alt="Netflix" height="28" width="108" />
+        <Link href="/browse" className={styles.logoContainer}>
+          <div className={styles.logoBrand}>
+            <span className={styles.logoRed}>netfix</span>
+          </div>
+          <div className={styles.logoCredit}>BY DHARMIK</div>
         </Link>
         <div className={styles.navLinks}>
           {navLinks.map((l) => (
             <Link key={l.label} href={l.href} className={styles.navLink}>
               {l.label}
+              {l.badge && <span className={styles.navBadge}>{l.badge}</span>}
             </Link>
           ))}
         </div>
@@ -72,6 +76,14 @@ export default function Navbar({ user, onSearch, searchQuery }) {
               id="search-input"
             />
           )}
+        </div>
+
+        {/* Language Selector */}
+        <div className={styles.langSelect}>
+          <select defaultValue="en">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+          </select>
         </div>
 
         {/* Notifications */}

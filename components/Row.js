@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import styles from '../styles/Row.module.css';
 import MovieCard from './MovieCard';
 
-export default function Row({ label, movies, isLargeRow, onCardClick, onAddToList, myList }) {
+export default function Row({ label, movies, isLargeRow, isTop10, onCardClick, onAddToList, myList }) {
   const rowRef = useRef(null);
   const [isMoved, setIsMoved] = useState(false);
 
@@ -31,15 +31,17 @@ export default function Row({ label, movies, isLargeRow, onCardClick, onAddToLis
         </button>
 
         <div className={styles.row} ref={rowRef}>
-          {movies.map((movie) => (
-            <MovieCard
-              key={movie.id}
-              movie={movie}
-              isLargeRow={isLargeRow}
-              onClick={() => onCardClick(movie)}
-              onAddToList={() => onAddToList(movie)}
-              inList={myList.some((m) => m.id === movie.id)}
-            />
+          {movies.map((movie, index) => (
+            <div key={movie.id} className={isTop10 ? styles.top10Card : ''}>
+              {isTop10 && <div className={styles.top10Number}>{index + 1}</div>}
+              <MovieCard
+                movie={movie}
+                isLargeRow={isLargeRow}
+                onClick={() => onCardClick(movie)}
+                onAddToList={() => onAddToList(movie)}
+                inList={myList.some((m) => m.id === movie.id)}
+              />
+            </div>
           ))}
         </div>
 

@@ -11,8 +11,12 @@ import Footer from '../components/Footer';
 import styles from '../styles/Browse.module.css';
 
 const ROWS = [
+  { slug: 'continue', label: 'Continue Watching' },
+  { slug: 'top10', label: 'Top 10 Movies Today' },
   { slug: 'trending', label: 'Trending Now' },
   { slug: 'top_rated', label: 'Top Rated' },
+  { slug: 'popular', label: 'Popular on Netflix' },
+  { slug: 'upcoming', label: 'Coming Soon' },
   { slug: 'action', label: 'Action & Adventure' },
   { slug: 'comedy', label: 'Comedy' },
   { slug: 'horror', label: 'Thriller & Horror' },
@@ -42,21 +46,51 @@ export default function Browse() {
   useEffect(() => {
     if (status !== 'authenticated') return;
 
-    // Fetch all movie rows
-    ROWS.forEach(async ({ slug }) => {
+    const fetchRows = async () => {
       try {
-        const { data } = await axios.get(`/api/movies/${slug}`);
-        setRows((prev) => ({ ...prev, [slug]: data.results || [] }));
-        if (slug === 'trending' && data.results?.length > 0) {
-          const featured = data.results.find((m) => m.backdrop_path) || data.results[0];
-          setHero(featured);
-        }
-      } catch (e) {
-        console.error('Row fetch error:', slug, e);
-      }
-    });
+        const rowData = await Promise.all(
+          ROWS.map(async ({ slug }) => {
+            try {
+              const { data } = await axios.get(`/api/movies/${slug}`);
+              return { slug, results: data.results || [] };
+            } catch (e) {
+              console.error(`Error fetching row ${slug}:`, e);
+              return { slug, results: [] };
+            }
+          })
+        );
 
-    // Fetch user's My List
+        const newRows = {};
+        const localSeenIds = new Set();
+        let featuredHero = null;
+
+        rowData.forEach(({ slug, results }) => {
+          const filtered = results.filter(movie => {
+            if (localSeenIds.has(movie.id)) return false;
+            localSeenIds.add(movie.id);
+            return true;
+          });
+
+          newRows[slug] = filtered;
+
+          // Try to pick the hero from trending first, then any other row
+          if (!featuredHero && filtered.length > 0) {
+            if (slug === 'trending' || !featuredHero) {
+               featuredHero = filtered.find((m) => m.backdrop_path || m.backdrop_url) || filtered[0];
+               // Filter it out to prevent duplication
+               newRows[slug] = filtered.filter(m => m.id !== featuredHero.id);
+            }
+          }
+        });
+
+        setRows(newRows);
+        if (featuredHero) setHero(featuredHero);
+      } catch (e) {
+        console.error('Parallel row fetch error:', e);
+      }
+    };
+
+    fetchRows();
     fetchMyList();
   }, [status]);
 
@@ -136,8 +170,8 @@ export default function Browse() {
   return (
     <>
       <Head>
-        <title>Netflix — Browse</title>
-        <meta name="description" content="Browse thousands of movies and TV shows on Netflix." />
+        <title>Netfix by Dharmik — Browse</title>
+        <meta name="description" content="Browse thousands of movies and TV shows on Netfix by Dharmik." />
       </Head>
 
       <div className={styles.page}>
@@ -147,86 +181,93 @@ export default function Browse() {
           searchQuery={searchQuery}
         />
 
-        {!searchResults ? (
-          <>
-            {hero && (
-              <Hero
-                movie={hero}
-                onPlay={() => {
-                  const type = hero.media_type === 'tv' || hero.first_air_date ? 'tv' : 'movie';
-                  router.push(`/movie/${hero.id}?type=${type}`);
-                }}
-                onMoreInfo={() => openModal(hero)}
-              />
-            )}
+        <main className={styles.mainContent}>
+          {!searchResults ? (
+            <>
+              <div className={styles.heroSection}>
+                {hero ? (
+                  <Hero
+                    movie={hero}
+                    onPlay={() => {
+                      const type = hero.media_type === 'tv' || hero.first_air_date ? 'tv' : 'movie';
+                      router.push(`/movie/${hero.id}?type=${type}`);
+                    }}
+                    onMoreInfo={() => openModal(hero)}
+                  />
+                ) : (
+                  <div className={styles.heroPlaceholder} />
+                )}
+              </div>
 
-            <div className={styles.rows}>
-              {myList.length > 0 && (
-                <Row
-                  label="My List"
-                  movies={myList}
-                  onCardClick={openModal}
-                  onAddToList={handleAddToList}
-                  myList={myList}
-                />
-              )}
-              {ROWS.map(({ slug, label }) =>
-                rows[slug]?.length > 0 ? (
+              <div className={styles.rows}>
+                {myList.length > 0 && (
                   <Row
-                    key={slug}
-                    label={label}
-                    movies={rows[slug]}
-                    isLargeRow={slug === 'trending'}
+                    label="My List"
+                    movies={myList}
                     onCardClick={openModal}
                     onAddToList={handleAddToList}
                     myList={myList}
                   />
-                ) : null
-              )}
-            </div>
-          </>
-        ) : (
-          <div className={styles.searchPage}>
-            <h2 className={styles.searchTitle}>
-              {searchQuery
-                ? `Results for "${searchQuery}"`
-                : 'Search Results'}
-            </h2>
-            <div className={styles.searchGrid}>
-              {searchResults.length > 0 ? (
-                searchResults.map((movie) => (
-                  <div
-                    key={movie.id}
-                    className={styles.searchCard}
-                    onClick={() => openModal(movie)}
-                  >
-                    <img
-                      src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
-                      alt={movie.title || movie.name}
-                      className={styles.searchPoster}
+                )}
+                {ROWS.map(({ slug, label }) =>
+                  rows[slug]?.length > 0 ? (
+                    <Row
+                      key={slug}
+                      label={label}
+                      movies={rows[slug]}
+                      isLargeRow={slug === 'trending'}
+                      isTop10={slug === 'top10'}
+                      onCardClick={openModal}
+                      onAddToList={handleAddToList}
+                      myList={myList}
                     />
-                    <p className={styles.searchCardTitle}>{movie.title || movie.name}</p>
-                  </div>
-                ))
-              ) : (
-                <p style={{ color: '#aaa' }}>No results found.</p>
-              )}
+                  ) : null
+                )}
+              </div>
+            </>
+          ) : (
+            <div className={styles.searchPage}>
+              <h2 className={styles.searchTitle}>
+                {searchQuery
+                  ? `Results for "${searchQuery}"`
+                  : 'Search Results'}
+              </h2>
+              <div className={styles.searchGrid}>
+                {searchResults.length > 0 ? (
+                  searchResults.map((movie) => (
+                    <div
+                      key={movie.id}
+                      className={styles.searchCard}
+                      onClick={() => openModal(movie)}
+                    >
+                      <img
+                        src={movie.poster_url || movie.poster_path}
+                        alt={movie.title || movie.name}
+                        className={styles.searchPoster}
+                      />
+                      <p className={styles.searchCardTitle}>{movie.title || movie.name}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p style={{ color: '#aaa' }}>No results found.</p>
+                )}
+              </div>
             </div>
-          </div>
+          )}
+        </main>
+
+        {modal && (
+          <Modal
+            movie={modal}
+            onClose={() => setModal(null)}
+            onAddToList={handleAddToList}
+            myList={myList}
+          />
         )}
+
+        <div className={`toast ${toast ? 'show' : ''}`}>{toast}</div>
+        <Footer />
       </div>
-
-      {modal && (
-        <Modal
-          movie={modal}
-          onClose={() => setModal(null)}
-          onAddToList={handleAddToList}
-          myList={myList}
-        />
-      )}
-
-          <div className={`toast ${toast ? 'show' : ''}`}>{toast}</div>
-          <Footer />
-        </>
-      );
-    }
+    </>
+  );
+}

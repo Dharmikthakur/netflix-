@@ -10,7 +10,7 @@ export default function Modal({ movie, onClose, onAddToList, myList }) {
   const title = movie.title || movie.name;
   let backdrop = null;
   if (movie.backdrop_url) backdrop = movie.backdrop_url;
-  else if (movie.backdrop_path) backdrop = `${IMG_BASE}${movie.backdrop_path}`;
+  else if (movie.backdrop_path) backdrop = movie.backdrop_path;
   const rating = movie.vote_average ? (movie.vote_average * 10).toFixed(0) + '% Match' : null;
   const year = (movie.release_date || movie.first_air_date || '').slice(0, 4);
   const inList = myList?.some((m) => m.id === movie.id);
@@ -110,7 +110,7 @@ export default function Modal({ movie, onClose, onAddToList, myList }) {
               {movie.similar.slice(0, 9).map((sim) => (
                 <div key={sim.id} className={styles.similarCard}>
                   {sim.backdrop_url || sim.backdrop_path ? (
-                    <img src={sim.backdrop_url ? sim.backdrop_url : `${IMG_BASE}${sim.backdrop_path}`} alt={sim.title || sim.name} />
+                    <img src={sim.backdrop_url || sim.backdrop_path} alt={sim.title || sim.name} />
                   ) : (
                     <div className={styles.noImage}>{sim.title || sim.name}</div>
                   )}

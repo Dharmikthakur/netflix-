@@ -26,15 +26,18 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Netflix — Watch TV Shows Online, Watch Movies Online</title>
-        <meta name="description" content="Watch Netflix movies and TV shows online or stream right to your smart TV, game console, PC, Mac, mobile, tablet and more." />
+        <title>Netfix by Dharmik — Watch TV Shows & Movies Online</title>
+        <meta name="description" content="Watch movies and TV shows online or stream right to your smart TV, game console, PC, Mac, mobile, tablet and more." />
       </Head>
 
       <div className={styles.landing}>
         {/* Navbar */}
         <nav className={styles.nav}>
           <div className={styles.logo}>
-            <img src="/assets/logo.png" alt="Netflix" height="32" width="120" />
+             <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
+                <span style={{ color: '#e50914', fontSize: 24, fontWeight: 900, fontFamily: 'Inter, sans-serif' }}>netfix</span>
+                <span style={{ color: '#adadad', fontSize: 9, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', marginTop: -2 }}>BY DHARMIK</span>
+             </div>
           </div>
           <Link href="/login">
             <button className="btn btn-primary" style={{ padding: '8px 20px', fontSize: 14 }}>

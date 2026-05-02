@@ -1,15 +1,16 @@
+import { useState } from 'react';
 import styles from '../styles/MovieCard.module.css';
 
-const IMG_BASE = 'https://image.tmdb.org/t/p/w500';
-
 export default function MovieCard({ movie, isLargeRow, onClick, onAddToList, inList }) {
+  const [imgError, setImgError] = useState(false);
+
   if (!movie.poster_path && !movie.backdrop_path && !movie.poster_url && !movie.backdrop_url) return null;
 
   let image = '';
   if (isLargeRow) {
-    image = movie.poster_url || (movie.poster_path ? `${IMG_BASE}${movie.poster_path}` : movie.backdrop_url);
+    image = movie.poster_url || movie.poster_path || movie.backdrop_url;
   } else {
-    image = movie.backdrop_url || (movie.backdrop_path ? `${IMG_BASE}${movie.backdrop_path}` : movie.poster_url);
+    image = movie.backdrop_url || movie.backdrop_path || movie.poster_url;
   }
 
   const rating = movie.vote_average ? (movie.vote_average * 10).toFixed(0) + '% Match' : null;
@@ -19,14 +20,26 @@ export default function MovieCard({ movie, isLargeRow, onClick, onAddToList, inL
     onAddToList();
   };
 
+  // Auto-proxy if the URL comes from Fanart but wasn't proxied by the API yet
+  const getFinalUrl = (url) => {
+    if (!url) return null;
+    if (url.includes('fanart.tv') && !url.includes('weserv.nl')) {
+      return `https://images.weserv.nl/?url=${encodeURIComponent(url.replace(/^https?:\/\//, ''))}`;
+    }
+    return url;
+  };
+
   return (
     <div className={`${styles.card} ${isLargeRow ? styles.cardLarge : ''}`} onClick={onClick}>
       <img
-        src={image}
+        src={imgError ? `https://via.placeholder.com/500x750/141414/ffffff?text=${encodeURIComponent(movie.title || movie.name)}` : getFinalUrl(image)}
         alt={movie.name || movie.title}
         className={styles.image}
         loading="lazy"
+        onError={() => setImgError(true)}
       />
+      {movie.badge && <div className={styles.badge}>{movie.badge}</div>}
+      {movie.isNew && <div className={styles.newBadge}>NEW</div>}
       <div className={styles.overlay}>
         <div className={styles.actions}>
           <div className={styles.actionsLeft}>
