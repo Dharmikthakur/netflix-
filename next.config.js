@@ -6,6 +6,8 @@ const nextConfig = {
       'image.tmdb.org',
       'via.placeholder.com',
       'lh3.googleusercontent.com',
+      'assets.fanart.tv',
+      'images.weserv.nl',
     ],
   },
 };

@@ -20,10 +20,13 @@ export default function MovieCard({ movie, isLargeRow, onClick, onAddToList, inL
     onAddToList();
   };
 
-  const getFinalUrl = (url) => {
+  const getFinalUrl = (url, type = 'poster') => {
     if (!url) return null;
+    let width = type === 'poster' ? 300 : 500;
+    let quality = 80;
+
     if (url.includes('fanart.tv') && !url.includes('weserv.nl')) {
-      return `https://images.weserv.nl/?url=${encodeURIComponent(url.replace(/^https?:\/\//, ''))}`;
+      return `https://images.weserv.nl/?url=${encodeURIComponent(url.replace(/^https?:\/\//, ''))}&w=${width}&q=${quality}&fit=cover`;
     }
     return url;
   };
@@ -31,7 +34,7 @@ export default function MovieCard({ movie, isLargeRow, onClick, onAddToList, inL
   return (
     <div className={`${styles.card} ${isLargeRow ? styles.cardLarge : ''}`} onClick={onClick}>
       <img
-        src={imgError ? `https://via.placeholder.com/500x750/141414/ffffff?text=${encodeURIComponent(movie.title || movie.name)}` : getFinalUrl(image)}
+        src={imgError ? `https://via.placeholder.com/500x750/141414/ffffff?text=${encodeURIComponent(movie.title || movie.name)}` : getFinalUrl(image, isLargeRow ? 'poster' : 'backdrop')}
         alt={movie.name || movie.title}
         className={styles.image}
         loading="lazy"

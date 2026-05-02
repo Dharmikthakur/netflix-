@@ -1,4 +1,3 @@
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useEffect, useState, useRef } from 'react';
 import Head from 'next/head';
@@ -27,7 +26,6 @@ const ROWS = [
 ];
 
 export default function Browse() {
-  const { data: session, status } = useSession();
   const router = useRouter();
 
   const [rows, setRows] = useState({});
@@ -40,11 +38,6 @@ export default function Browse() {
   const toastTimer = useRef(null);
 
   useEffect(() => {
-    if (status === 'unauthenticated') router.replace('/login');
-  }, [status, router]);
-
-  useEffect(() => {
-    if (status !== 'authenticated') return;
 
     const fetchRows = async () => {
       try {
@@ -92,7 +85,7 @@ export default function Browse() {
 
     fetchRows();
     fetchMyList();
-  }, [status]);
+  }, []);
 
   const fetchMyList = async () => {
     try {
@@ -159,13 +152,7 @@ export default function Browse() {
     }
   };
 
-  if (status === 'loading') {
-    return (
-      <div className="loader">
-        <div className="spinner" />
-      </div>
-    );
-  }
+
 
   return (
     <>
@@ -176,7 +163,7 @@ export default function Browse() {
 
       <div className={styles.page}>
         <Navbar
-          user={session?.user}
+          user={{ name: 'Guest', image: null }}
           onSearch={handleSearch}
           searchQuery={searchQuery}
         />

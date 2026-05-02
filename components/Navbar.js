@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import styles from '../styles/Navbar.module.css';
@@ -116,7 +115,7 @@ export default function Navbar({ user, onSearch, searchQuery }) {
                 <span>⚙️</span> Account
               </div>
               <div className={styles.dropdownDivider} />
-              <div className={styles.dropdownItem} onClick={() => signOut({ callbackUrl: '/' })}>
+              <div className={styles.dropdownItem}>
                 <span>🚪</span> Sign out
               </div>
             </div>
