@@ -13,14 +13,13 @@ export default function MovieCard({ movie, isLargeRow, onClick, onAddToList, inL
     image = movie.backdrop_url || movie.backdrop_path || movie.poster_url;
   }
 
-  const rating = movie.vote_average ? (movie.vote_average * 10).toFixed(0) + '% Match' : null;
+  const ratingValue = movie.vote_average ? movie.vote_average.toFixed(1) : '8.5';
 
   const handleAdd = (e) => {
     e.stopPropagation();
     onAddToList();
   };
 
-  // Auto-proxy if the URL comes from Fanart but wasn't proxied by the API yet
   const getFinalUrl = (url) => {
     if (!url) return null;
     if (url.includes('fanart.tv') && !url.includes('weserv.nl')) {
@@ -40,10 +39,12 @@ export default function MovieCard({ movie, isLargeRow, onClick, onAddToList, inL
       />
       {movie.badge && <div className={styles.badge}>{movie.badge}</div>}
       {movie.isNew && <div className={styles.newBadge}>NEW</div>}
+      
       <div className={styles.overlay}>
-        <div className={styles.actions}>
+        <h3 className={styles.title}>{movie.title || movie.name}</h3>
+        <div className={styles.actionBar}>
           <div className={styles.actionsLeft}>
-            <button className={styles.circleBtn} style={{ background: '#fff' }} aria-label="Play">
+            <button className={styles.playBtn} aria-label="Play">
               <svg fill="black" viewBox="0 0 24 24" width="20" height="20">
                 <path d="M8 5v14l11-7z"/>
               </svg>
@@ -60,17 +61,11 @@ export default function MovieCard({ movie, isLargeRow, onClick, onAddToList, inL
               )}
             </button>
           </div>
-          <button className={styles.circleBtn} aria-label="More Info">
-            <svg fill="white" viewBox="0 0 24 24" width="18" height="18">
-              <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
-            </svg>
-          </button>
+          <div className={styles.ratingBox}>
+            <span className={styles.star}>★</span>
+            <span className={styles.ratingText}>{ratingValue}</span>
+          </div>
         </div>
-        <div className={styles.meta}>
-          <span className={styles.rating}>{rating}</span>
-          <span className={styles.age}>16+</span>
-        </div>
-        <p className={styles.title}>{movie.title || movie.name}</p>
       </div>
     </div>
   );

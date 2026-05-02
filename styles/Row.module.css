@@ -1,6 +1,13 @@
 .rowContainer {
   margin-top: 40px;
   padding: 0 48px;
+  position: relative;
+  transition: z-index 0s;
+  z-index: 1;
+}
+
+.rowContainer:hover {
+  z-index: 50; /* Bring current row to front when hovering any card */
 }
 
 .rowTitle {
@@ -20,8 +27,8 @@
   gap: 8px;
   overflow-x: scroll;
   overflow-y: visible;
-  padding: 20px 0;
-  margin: -20px 0;
+  padding: 60px 0 150px; /* Large bottom padding for the expanded overlay */
+  margin: -60px 0 -150px;
   scroll-behavior: smooth;
   scrollbar-width: none; /* Firefox */
 }

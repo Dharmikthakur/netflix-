@@ -63,8 +63,9 @@ export default async function handler(req, res) {
           const detailRes = await axios.get(`${FANART_BASE}/${type}/${fetchId}?api_key=${API_KEY}`);
           const item = detailRes.data;
 
-          const backdrop = item.moviebackground?.[0]?.url || item.showbackground?.[0]?.url || item.movieart?.[0]?.url || item.showart?.[0]?.url || item.moviethumb?.[0]?.url || item.tvthumb?.[0]?.url || tvMazeData?.image?.original;
-          const poster = item.movieposter?.[0]?.url || item.tvposter?.[0]?.url || item.moviethumb?.[0]?.url || item.tvthumb?.[0]?.url || tvMazeData?.image?.medium || tvMazeData?.image?.original;
+          // Prioritize images that usually have the title baked in (Thumbs and Movie Art)
+          const backdrop = item.moviethumb?.[0]?.url || item.tvthumb?.[0]?.url || item.movieart?.[0]?.url || item.showart?.[0]?.url || item.moviebackground?.[0]?.url || item.showbackground?.[0]?.url || tvMazeData?.image?.original;
+          const poster = item.movieposter?.[0]?.url || item.tvposter?.[0]?.url || tvMazeData?.image?.medium || tvMazeData?.image?.original;
           const logo = item.hdmovielogo?.[0]?.url || item.hdtvlogo?.[0]?.url || item.movielogo?.[0]?.url || item.clearlogo?.[0]?.url;
 
           // Proxy images for reliability
@@ -88,7 +89,6 @@ export default async function handler(req, res) {
         } catch (e) {
           if (id) {
              try {
-               // Aggressive fallback to TVMaze for both movies and shows (they have some movie metadata too)
                const tmRes = await axios.get(`${TVMAZE_BASE}/lookup/shows?thetmdb=${id}`);
                const show = tmRes.data;
                const proxy = (url) => url ? `https://images.weserv.nl/?url=${encodeURIComponent(url.replace(/^https?:\/\//, ''))}` : null;
