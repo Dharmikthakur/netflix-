@@ -6,8 +6,8 @@ import Navbar from '../../components/Navbar';
 
 const SOURCES = [
   { id: 'vidlink', name: 'VidLink (4K)' },
-  { id: 'vidsrc_to', name: 'VidSrc.to (HD)' },
   { id: 'vidking', name: 'VidKing (Fast)' },
+  { id: 'vidsrc_to', name: 'VidSrc.to (HD)' },
   { id: 'multiembed', name: 'MultiEmbed (Multi)' },
 ];
 
