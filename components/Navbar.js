@@ -31,6 +31,7 @@ export default function Navbar({ user, onSearch, searchQuery }) {
     { label: 'Home', href: '/browse' },
     { label: 'TV Shows', href: '/browse?type=tv' },
     { label: 'Movies', href: '/browse?type=movie' },
+    { label: 'Live TV', href: '/live', isLive: true },
     { label: 'New & Popular', href: '/browse?type=popular' },
     { label: 'My List', href: '/browse?type=mylist', badge: 1 },
   ];
@@ -48,6 +49,17 @@ export default function Navbar({ user, onSearch, searchQuery }) {
         <div className={styles.navLinks}>
           {navLinks.map((l) => (
             <Link key={l.label} href={l.href} className={styles.navLink}>
+              {l.isLive && (
+                <span style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: '#e50914',
+                  display: 'inline-block',
+                  marginRight: '2px',
+                  boxShadow: '0 0 8px #e50914'
+                }} />
+              )}
               {l.label}
               {l.badge && <span className={styles.navBadge}>{l.badge}</span>}
             </Link>
@@ -107,15 +119,23 @@ export default function Navbar({ user, onSearch, searchQuery }) {
 
           {dropdownOpen && (
             <div className={styles.dropdown}>
-              <div className={styles.dropdownItem}>
+              <div className={styles.dropdownItem} onClick={() => router.push('/browse')}>
                 <span>👤</span> {user?.name || 'Profile'}
               </div>
               <div className={styles.dropdownDivider} />
-              <div className={styles.dropdownItem}>
+              <div className={styles.dropdownItem} onClick={() => router.push('/browse')}>
                 <span>⚙️</span> Account
               </div>
               <div className={styles.dropdownDivider} />
-              <div className={styles.dropdownItem}>
+              <div
+                className={styles.dropdownItem}
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    localStorage.removeItem('netflix_user');
+                  }
+                  router.push('/login');
+                }}
+              >
                 <span>🚪</span> Sign out
               </div>
             </div>

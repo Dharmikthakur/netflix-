@@ -11,14 +11,21 @@ export default function Modal({ movie, onClose, onAddToList, myList }) {
   let backdrop = null;
   if (movie.backdrop_url) backdrop = movie.backdrop_url;
   else if (movie.backdrop_path) backdrop = movie.backdrop_path;
-  const rating = movie.vote_average ? (movie.vote_average * 10).toFixed(0) + '% Match' : null;
-  const year = (movie.release_date || movie.first_air_date || '').slice(0, 4);
+  else if (movie.backdropPath) backdrop = movie.backdropPath;
+  
+  const isLiveItem = movie.status === 'LIVE' || movie.isLive;
+  const rating = isLiveItem ? 'LIVE BROADCAST' : (movie.vote_average ? (movie.vote_average * 10).toFixed(0) + '% Match' : null);
+  const year = isLiveItem ? '2026 LIVE' : (movie.release_date || movie.first_air_date || '').slice(0, 4);
   const inList = myList?.some((m) => m.id === movie.id);
   
   // Find trailer
   const trailer = movie.videos?.find((vid) => vid.type === 'Trailer' && vid.site === 'YouTube');
 
   const handlePlay = () => {
+    if (isLiveItem) {
+      router.push(`/live/${movie.id}`);
+      return;
+    }
     const type = movie.media_type === 'tv' || movie.first_air_date ? 'tv' : 'movie';
     router.push(`/movie/${movie.id}?type=${type}`);
   };
@@ -48,13 +55,39 @@ export default function Modal({ movie, onClose, onAddToList, myList }) {
           <div className={styles.heroOverlay} />
           
           <div className={styles.heroContent}>
+            {isLiveItem && (
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: '#e50914',
+                color: '#fff',
+                padding: '3px 10px',
+                borderRadius: '4px',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                marginBottom: '10px'
+              }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#fff' }} /> LIVE CHANNEL
+              </div>
+            )}
             <h1 className={styles.title}>{title}</h1>
+            {isLiveItem && movie.score && (
+              <p style={{ color: '#46d369', fontWeight: 'bold', fontSize: '18px', margin: '4px 0 12px' }}>
+                {movie.score}
+              </p>
+            )}
+            {isLiveItem && movie.odds && (
+              <p style={{ color: '#ccc', fontSize: '14px', margin: '0 0 16px' }}>
+                {movie.odds}
+              </p>
+            )}
             <div className={styles.actions}>
               <button className="btn btn-white" style={{ padding: '8px 24px', fontSize: 18 }} onClick={handlePlay}>
                 <svg fill="black" viewBox="0 0 24 24" width="24" height="24">
                   <path d="M8 5v14l11-7z" />
                 </svg>
-                Play
+                {isLiveItem ? 'Watch Stream' : 'Play'}
               </button>
               <button className={`${styles.circleBtn} ${inList ? styles.active : ''}`} onClick={() => onAddToList(movie)}>
                 {inList ? (

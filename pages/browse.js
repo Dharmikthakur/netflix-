@@ -9,6 +9,8 @@ import Modal from '../components/Modal';
 import Footer from '../components/Footer';
 import styles from '../styles/Browse.module.css';
 
+import { LIVE_CHANNELS } from '../data/liveChannels';
+
 const ROWS = [
   { slug: 'continue', label: 'Continue Watching' },
   { slug: 'top10', label: 'Top 10 Movies Today' },
@@ -35,9 +37,17 @@ export default function Browse() {
   const [toast, setToast] = useState('');
   const [searchResults, setSearchResults] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const toastTimer = useRef(null);
+  const [currentUser, setCurrentUser] = useState({ name: 'Guest' });
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('netflix_user');
+      if (stored) {
+        try {
+          setCurrentUser(JSON.parse(stored));
+        } catch (e) {}
+      }
+    }
 
     const fetchRows = async () => {
       try {
@@ -89,10 +99,23 @@ export default function Browse() {
 
   const fetchMyList = async () => {
     try {
+      if (typeof window !== 'undefined') {
+        const localList = localStorage.getItem('netflix_mylist');
+        if (localList) {
+          setMyList(JSON.parse(localList));
+          return;
+        }
+      }
       const { data } = await axios.get('/api/mylist');
-      setMyList(data.myList || []);
+      if (data?.myList) {
+        setMyList(data.myList);
+      }
     } catch (e) {
-      console.error('MyList fetch error:', e);
+      // Fallback silently to empty or local list
+      if (typeof window !== 'undefined') {
+        const localList = localStorage.getItem('netflix_mylist');
+        if (localList) setMyList(JSON.parse(localList));
+      }
     }
   };
 
@@ -104,11 +127,24 @@ export default function Browse() {
 
   const handleAddToList = async (movie) => {
     const inList = myList.some((m) => m.id === movie.id);
+    let updated;
+    if (inList) {
+      updated = myList.filter((m) => m.id !== movie.id);
+      setMyList(updated);
+      showToast(`Removed "${movie.title || movie.name}" from My List`);
+    } else {
+      updated = [...myList, movie];
+      setMyList(updated);
+      showToast(`Added "${movie.title || movie.name}" to My List`);
+    }
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('netflix_mylist', JSON.stringify(updated));
+    }
+
     try {
       if (inList) {
         await axios.delete('/api/mylist', { data: { id: movie.id } });
-        setMyList((prev) => prev.filter((m) => m.id !== movie.id));
-        showToast(`Removed "${movie.title || movie.name}" from My List`);
       } else {
         await axios.post('/api/mylist', {
           id: movie.id,
@@ -120,11 +156,9 @@ export default function Browse() {
           genre_ids: movie.genre_ids,
           media_type: movie.media_type || 'movie',
         });
-        setMyList((prev) => [...prev, movie]);
-        showToast(`Added "${movie.title || movie.name}" to My List`);
       }
     } catch (e) {
-      showToast('Please sign in to save to My List');
+      // Handled gracefully via localStorage
     }
   };
 
@@ -143,6 +177,10 @@ export default function Browse() {
   };
 
   const openModal = async (item) => {
+    if (item.isLive || item.status === 'LIVE') {
+      setModal(item);
+      return;
+    }
     try {
       const type = item.media_type === 'tv' || item.first_air_date ? 'tv' : 'movie';
       const { data } = await axios.get(`/api/movies/${type}/${item.id}`);
@@ -151,8 +189,6 @@ export default function Browse() {
       setModal(item);
     }
   };
-
-
 
   return (
     <>
@@ -163,7 +199,7 @@ export default function Browse() {
 
       <div className={styles.page}>
         <Navbar
-          user={{ name: 'Guest', image: null }}
+          user={currentUser}
           onSearch={handleSearch}
           searchQuery={searchQuery}
         />
@@ -187,6 +223,14 @@ export default function Browse() {
               </div>
 
               <div className={styles.rows}>
+                <Row
+                  label="🔴 Live Sports & TV Channels"
+                  movies={LIVE_CHANNELS}
+                  onCardClick={openModal}
+                  onAddToList={handleAddToList}
+                  myList={myList}
+                />
+
                 {myList.length > 0 && (
                   <Row
                     label="My List"

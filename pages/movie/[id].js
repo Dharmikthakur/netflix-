@@ -19,6 +19,10 @@ export default function MovieDetail() {
   
   useEffect(() => {
     if (!id) return;
+    if (type === 'live' || id.startsWith('sony-') || id.startsWith('sports-')) {
+      router.replace(`/live/${id}`);
+      return;
+    }
     const fetchMovie = async () => {
       try {
         const { data } = await axios.get(`/api/movies/${type}/${id}`);
@@ -28,7 +32,7 @@ export default function MovieDetail() {
       }
     };
     fetchMovie();
-  }, [id, type]);
+  }, [id, type, router]);
 
   if (!movie) {
     return <div className="loader"><div className="spinner" /></div>;

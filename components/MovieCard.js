@@ -31,6 +31,8 @@ export default function MovieCard({ movie, isLargeRow, onClick, onAddToList, inL
     return url;
   };
 
+  const isLiveItem = movie.status === 'LIVE' || movie.isLive;
+
   return (
     <div className={`${styles.card} ${isLargeRow ? styles.cardLarge : ''}`} onClick={onClick}>
       <img
@@ -40,11 +42,28 @@ export default function MovieCard({ movie, isLargeRow, onClick, onAddToList, inL
         loading="lazy"
         onError={() => setImgError(true)}
       />
-      {movie.badge && <div className={styles.badge}>{movie.badge}</div>}
-      {movie.isNew && <div className={styles.newBadge}>NEW</div>}
+      {isLiveItem ? (
+        <div className={styles.liveBadge}>
+          <span style={{
+            width: '6px',
+            height: '6px',
+            borderRadius: '50%',
+            backgroundColor: '#fff',
+            display: 'inline-block'
+          }} /> LIVE
+        </div>
+      ) : (
+        <>
+          {movie.badge && <div className={styles.badge}>{movie.badge}</div>}
+          {movie.isNew && <div className={styles.newBadge}>NEW</div>}
+        </>
+      )}
       
       <div className={styles.overlay}>
         <h3 className={styles.title}>{movie.title || movie.name}</h3>
+        {isLiveItem && movie.score && (
+          <div className={styles.liveScore}>{movie.score}</div>
+        )}
         <div className={styles.actionBar}>
           <div className={styles.actionsLeft}>
             <button className={styles.playBtn} aria-label="Play">
