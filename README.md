@@ -43,4 +43,3 @@ fanart apis
 ├── styles/           # Global + module CSS
 └── public/           # Static assets
 ```
-z
